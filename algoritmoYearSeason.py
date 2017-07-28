@@ -28,7 +28,9 @@ def seasonOfNumber(mes):
 os.system('clear')
 
 #%% chance workdirectory
-os.chdir('/Users/jorgemauricio/Documents/Research/rainIndex')
+home = expanduser("~")
+home += "/Documents/Research/rainIndex"
+os.chdir(home)
 
 #%% load data from csv file
 data = pd.read_csv('../rawData/rawDataRainIndexReference.csv')
@@ -97,7 +99,7 @@ grouped = data.groupby(['lat', 'long','number','yearSeason']).agg(aggregations)
 grouped.columns = ["_".join(x) for x in grouped.columns.ravel()]
 
 #%% Save to CSV
-grouped.to_csv('result/baseTotalGroupedYearSeason.csv')
+grouped.to_csv('baseTotalGroupedYearSeason.csv')
 
 #%% grouped head
 grouped.head()

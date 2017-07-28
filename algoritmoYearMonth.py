@@ -14,7 +14,9 @@ import os
 os.system('clear')
 
 #%% chance workdirectory
-os.chdir('/Users/jorgemauricio/Documents/Research/rainIndex')
+home = expanduser("~")
+home += "/Documents/Research/rainIndex"
+os.chdir(home)
 
 #%% load data from csv file
 data = pd.read_csv('../rawData/rawDataRainIndexReference.csv')
@@ -32,10 +34,10 @@ data = data.dropna()
 data['number'].count()
 
 #%% Create Fecha Format AAAA-MM
-data['fechaFormato'] = data.apply(lambda x: '%d-%d' % (x['anio'], x['mes']), axis=1)
+data['dateFormat'] = data.apply(lambda x: '%d-%d' % (x['year'], x['month']), axis=1)
 
 #%% column precipitacion to vReal
-data['vReal'] = data['precipitacion']
+data['vReal'] = data['rain']
 
 #%% Create Rainy days column
 data['rainyDays'] = [1 if x > 0.0 else 0 for x in data['vReal']]
@@ -71,15 +73,15 @@ aggregations = {
         }
 
 #%% Apply aggregation
-data.groupby('fechaFormato').agg(aggregations)
+data.groupby('dateFormat').agg(aggregations)
 
 #%% data head
 data.head()
 
 #%% Save to CSV
-grouped = data.groupby(['lat', 'long','number','fechaFormato']).agg(aggregations)
+grouped = data.groupby(['lat', 'long','number','dateFormat']).agg(aggregations)
 grouped.columns = ["_".join(x) for x in grouped.columns.ravel()]
-grouped.to_csv('result/totalDataBaseGroupedByYearAndMonth.csv')
+grouped.to_csv('totalDataBaseGroupedByYearAndMonth.csv')
 
 #%% grouped data head()
 grouped.head()

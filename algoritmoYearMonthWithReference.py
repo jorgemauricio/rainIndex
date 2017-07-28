@@ -2,7 +2,7 @@
 """
 Created on Sun Jul 23 09:04:48 2017
 
-@author: jorge mauricio
+@author: jorgemauricio
 """
 
 #%% libraries
@@ -29,6 +29,7 @@ def processingFunction():
     print('Here goes the program')
 
 #%% Function seasonOfNumber
+# this function add the season to the database for further classification
 def seasonOfNumber(mes):
     seasonSelected = ''
     if (mes == 3 or mes == 4 or mes == 5):
@@ -42,7 +43,7 @@ def seasonOfNumber(mes):
     else:
         print('Error')
     return seasonSelected
-        
+
 #%% check reference data
 if os.path.exists('../rawData'):
     print('Folder exist')
@@ -54,7 +55,7 @@ if os.path.exists('../rawData'):
 else:
     print('Folder doesnt exist')
 
-#%%
+#%% read reference data from weather station
 dataReference = pd.read_csv('../rawData/rawDataRainIndexReference.csv')
 
 #%% check Columns
@@ -65,32 +66,32 @@ if (len(arrayOfColumnsFromReference) >= 6):
     print(arrayOfColumnsFromReference)
 else:
     print('Incomplete information')
-    
+
 #%% Display head of file
 dataReference.head()
 
 #%% How many rows the dataset
-dataReference['precipitacion'].count()
-datosBruto = dataReference["precipitacion"].count()
-print("***** Numero total de registros: {}".format(datosBruto))
+dataReference['rain'].count()
+datosBruto = dataReference["rain"].count()
+print("***** Rows: {}".format(datosBruto))
 
 #%% Drop NA values from the rows
 dataReference = dataReference.dropna()
 
 #%% How many rows the dataset after drop NA
-dataReference['precipitacion'].count()
-datosNetos = dataReference["precipitacion"].count()
-print("***** Numero neto de registros: {}".format(datosNetos))
+dataReference['rain'].count()
+datosNetos = dataReference["rain"].count()
+print("***** Rows: {}".format(datosNetos))
 
 #%% Print % of data available
 datosTotales = datosNetos / datosBruto * 100
-print("***** % Datos disponibles: {}".format(datosTotales))
+print("***** % Available data: {}".format(datosTotales))
 
 #%% Create Fecha Format AAAA-MM
-dataReference['fechaFormato'] = dataReference.apply(lambda x: '%d-%d' % (x['anio'], x['mes']), axis=1)
+dataReference['dateFormat'] = dataReference.apply(lambda x: '%d-%d' % (x['year'], x['month']), axis=1)
 
-#%% column precipitacion to vReal
-dataReference['vReal'] = dataReference['precipitacion']
+#%% column rain to vReal
+dataReference['vReal'] = dataReference['rain']
 
 #%% Create Rainy days column
 dataReference['rainyDays'] = [1 if x > 0.0 else 0 for x in dataReference['vReal']]
@@ -126,21 +127,21 @@ aggregations = {
         }
 
 #%% Apply aggregation
-dataReference.groupby('fechaFormato').agg(aggregations)
+dataReference.groupby('dateFormat').agg(aggregations)
 
 #%% data head
 dataReference.head()
 
 #%% Save to CSV
-grouped = dataReference.groupby(['lat', 'long','number','fechaFormato']).agg(aggregations)
+grouped = dataReference.groupby(['lat', 'long','number','dateFormat']).agg(aggregations)
 grouped.columns = ["_".join(x) for x in grouped.columns.ravel()]
-grouped.to_csv('result/baseTotalGroupedYearMonth.csv')
+grouped.to_csv('baseTotalGroupedYearMonth.csv')
 
 #%% grouped data head()
 grouped.head()
 
-#%% read csv 
-newData = pd.read_csv("result/baseTotalGroupedYearMonth.csv")
+#%% read csv
+newData = pd.read_csv("baseTotalGroupedYearMonth.csv")
 
 #%% newData head()
 newData.head()
@@ -207,11 +208,11 @@ dataFile = "lat, long, number, year, month, day, value\n"
 
 #%% loop the dataFrame
 for index, row in newData.iterrows():
-    #print(row)    
+    #print(row)
     latitude = row["lat"]
     longitude = row["long"]
     prec = float(row["vReal_sum"])
-    numOfDays, month, year = daysInMonth(row["fechaFormato"])
+    numOfDays, month, year = daysInMonth(row["dateFormat"])
     matrizOcurrencia = generateMatrixOccur(numOfDays, month, row["rainyDays_sum"], counterIterationsTotal)
     matrizProbabilidad = generateMatrixProbability(numOfDays)
     matrizResultado = matrizOcurrencia * matrizProbabilidad
@@ -223,6 +224,6 @@ for index, row in newData.iterrows():
         dataFile = "{},{},{},{},{},{},{}\n".format(latitude, longitude, row["number"], year, month, y, matrizResultado2[int(y)-1])
 
 #%% save to csv
-textFile = open('result/dissagregationDataWithReference.csv', "w")
+textFile = open('dissagregationDataWithReference.csv', "w")
 textFile.write(dataFile)
 textFile.close()
