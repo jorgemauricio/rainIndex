@@ -208,20 +208,24 @@ dataFile = "lat, long, number, year, month, day, value\n"
 
 #%% loop the dataFrame
 for index, row in newData.iterrows():
-    #print(row)
-    latitude = row["lat"]
-    longitude = row["long"]
-    prec = float(row["vReal_sum"])
-    numOfDays, month, year = daysInMonth(row["dateFormat"])
-    matrizOcurrencia = generateMatrixOccur(numOfDays, month, row["rainyDays_sum"], counterIterationsTotal)
-    matrizProbabilidad = generateMatrixProbability(numOfDays)
-    matrizResultado = matrizOcurrencia * matrizProbabilidad
-    valorTotalMatrizResultado = matrizResultado.sum()
-    matrizResultado2 = matrizResultado / valorTotalMatrizResultado
-    matrizResultado2 = matrizResultado2 * prec
-    days = np.linspace(1,numOfDays, num=numOfDays)
-    for y in days:
-        dataFile = "{},{},{},{},{},{},{}\n".format(latitude, longitude, row["number"], year, month, y, matrizResultado2[int(y)-1])
+	#print(row)
+	latitude = row["lat"]
+	longitude = row["long"]
+	prec = float(row["vReal_sum"])
+	numOfDays, month, year = daysInMonth(row["dateFormat"])
+	matrizOcurrencia = generateMatrixOccur(numOfDays, month, row["rainyDays_sum"], counterIterationsTotal)
+	matrizProbabilidad = generateMatrixProbability(numOfDays)
+	matrizResultado = matrizOcurrencia * matrizProbabilidad
+	valorTotalMatrizResultado = matrizResultado.sum()
+	matrizResultado2 = matrizResultado / valorTotalMatrizResultado
+	matrizResultado2 = matrizResultado2 * prec
+	days = np.linspace(1,numOfDays, num=numOfDays)
+	for y in days:
+		z = float(matrizResultado2[int(y)-1])
+		if math.isnan(z):
+			dataFile += "{},{},{},{},{},{},{}\n".format(latitude, longitude, row["number"], year, month, y, 0)
+		else:
+	        dataFile += "{},{},{},{},{},{},{}\n".format(latitude, longitude, row["number"], year, month, y, matrizResultado2[int(y)-1])
 
 #%% save to csv
 textFile = open('dissagregationDataWithReference.csv', "w")

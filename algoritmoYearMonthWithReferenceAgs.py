@@ -233,9 +233,9 @@ for index, row in newData.iterrows():
 	for y in days:
 		z = float(matrizResultado2[int(y)-1])
 		if math.isnan(z):
-			dataFile += "{},{},{},{},{},{},[]\n".format(latitude, longitude, row["number"], year, month, y, 0)
+			dataFile += "{},{},{},{},{},{},{}\n".format(latitude, longitude, row["number"], year, month, y, 0)
 		else:
-	        	dataFile += "{},{},{},{},{},{},{}\n".format(latitude, longitude, row["number"], year, month, y, matrizResultado2[int(y)-1])
+	        dataFile += "{},{},{},{},{},{},{}\n".format(latitude, longitude, row["number"], year, month, y, matrizResultado2[int(y)-1])
 
 #%% save to csv
 textFile = open('dissagregationDataWithReferenceAGS.csv', "w")
